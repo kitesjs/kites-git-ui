@@ -5,16 +5,21 @@ const git = require('simple-git/promise');
  */
 module.exports = function routes(app) {
 
+  /**
+   * Webhook endpoint (get)
+   */
   app.get('/git-ui/pull', (req, res) => {
     const { kites } = req;
     const workdir = kites.options.GITWORKDIR;
     kites.logger.info('Git UI working on: ' + workdir);
 
     if (!workdir) {
-      return res.send('GITWORKDIR is not set!');
+      return res.status(400).send('GITWORKDIR is not set!');
     }
 
     git(workdir)
+      .silent(true)
+      // .reset('hard')
       .pull('origin', 'master')
       .then((ret) => {
         // TODO: render to view
@@ -25,4 +30,33 @@ module.exports = function routes(app) {
         res.status(400).send(err);
       })
   });
+
+  /**
+   * Webhook endpoint (post)
+   */
+  app.post('/git-ui/pull', (req, res) => {
+    const { kites } = req;
+    const workdir = kites.options.GITWORKDIR;
+
+    if (!workdir) {
+      kites.logger.error('GITWORKDIR is not set!');
+      return res.status(400).send('GITWORKDIR is not set!');
+    } else {
+      kites.logger.info('Git UI working on: ' + workdir);
+    }
+
+    // send signal ok!
+    res.send('OK');
+
+    git(workdir)
+      .silent(true)
+      .pull('origin', 'master')
+      .then((ret) => {
+        kites.logger.info('Git pull origin master success: ' + JSON.parse(ret));
+      })
+      .catch(err => {
+        kites.logger.error('Cannot pull origin master: ' + workdir);
+        kites.logger.error('ERROR: ' + err && err.message);
+      })
+  })
 }
