@@ -24,5 +24,10 @@
   },
   "devDependencies": {
     "@kites/express": "^1.2.3"
-  }
+  },
+  "files": [
+    "src",
+    "README.md",
+    "kites.config.js"
+  ]
 }
