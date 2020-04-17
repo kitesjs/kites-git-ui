@@ -52,7 +52,11 @@ module.exports = function routes(app) {
       .silent(true)
       .pull('origin', 'master')
       .then((ret) => {
-        kites.logger.info('Git pull origin master success: ' + JSON.parse(ret));
+
+        kites.logger.info(`Git pull origin master success!
+          Summary: Changes(${ret.summary.changes}), Insertions(${ret.summary.insertions}), Deletions(${ret.summary.deletions})
+          Files: ${ret.files.join(',')}
+        `);
       })
       .catch(err => {
         kites.logger.error('Cannot pull origin master: ' + workdir);
